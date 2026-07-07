@@ -1,0 +1,20 @@
+📁 Kelompok UAS_DESAIN DAN PEMROGRAMAN WEB/
+├── 📁 api/
+│   └── get_region.php          ← API cascading dropdown
+├── 📁 assets/
+│   ├── css/style.css           ← Premium dark theme CSS
+│   ├── js/app.js               ← Cascading dropdown JS + UI
+│   └── images/                 ← Logo UIA + foto tim
+├── 📁 config/
+│   └── database.php            ← Koneksi PDO MySQL
+├── 📁 includes/
+│   ├── header.php              ← Navbar (logo kiri + foto kanan)
+│   └── footer.php              ← Footer
+├── index.php                   ← Login
+├── register.php                ← Register
+├── dashboard.php               ← Dashboard [15 poin]
+├── profile.php                 ← Profile + 4 dropdown [50 poin]
+├── teams.php                   ← Teams page [20 poin]
+├── logout.php                  ← Logout
+├── import_region.php           ← Setup otomatis (run sekali)
+└── setup_database.sql          ← SQL referensi
