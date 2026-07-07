@@ -11,6 +11,7 @@
  */
 ?>
     </main><!-- End Main Content -->
+    </div><!-- End layout-wrapper -->
 
     <!-- Footer -->
     <!-- Kontribusi: Alwin Dwi Kurniawan (3420240019) -->

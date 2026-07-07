@@ -324,9 +324,9 @@ a:hover {
  * Kontribusi: Alwin Dwi Kurniawan (3420240019)
  * ============================================================================ */
 .main-content {
-    padding-top: 90px;
+    padding-top: 20px;
     padding-bottom: 40px;
-    min-height: 100vh;
+    min-height: calc(100vh - 70px);
 }
 
 .container {
@@ -1111,5 +1111,234 @@ textarea.form-control {
 
     .navbar-profile .user-name {
         display: none;
+    }
+}
+
+/* ============================================================================
+ * Additional Features (Dashboard & Profile updates)
+ * ============================================================================ */
+.dashboard-panels {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 992px) {
+    .dashboard-panels {
+        grid-template-columns: 1fr;
+    }
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.table th, .table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table th {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.badge {
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-completed {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--emerald);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--amber);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge-process {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--accent-primary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.badge-canceled {
+    background: rgba(244, 63, 94, 0.1);
+    color: var(--accent-rose);
+    border: 1px solid rgba(244, 63, 94, 0.2);
+}
+
+.todo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--accent-primary);
+    transition: all var(--transition-fast);
+}
+
+.todo-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateX(4px);
+}
+
+[data-theme="light"] .todo-item {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .todo-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.todo-item.accent-blue { border-left-color: #3b82f6; }
+.todo-item.accent-orange { border-left-color: #f97316; }
+.todo-item.accent-green { border-left-color: #10b981; }
+
+.todo-text {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.radio-group {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+/* ============================================================================
+ * Sidebar Styling (New Feature)
+ * ============================================================================ */
+.layout-wrapper {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 70px; /* Account for fixed navbar */
+}
+
+.sidebar {
+    width: 240px;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-right: 1px solid var(--border-color);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 14px 18px;
+    color: #94a3b8;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+}
+
+.sidebar-link.active {
+    background: #1e293b;
+    color: #10b981;
+}
+
+[data-theme="light"] .sidebar-link.active {
+    background: #e2e8f0;
+    color: #059669;
+}
+
+[data-theme="light"] .sidebar-link:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #1e293b;
+}
+
+.sidebar-link svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
+}
+
+.main-content {
+    flex: 1;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .layout-wrapper {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        padding: 1rem;
+        flex-direction: row;
+        overflow-x: auto;
+    }
+    .sidebar-menu {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+    .sidebar-link {
+        white-space: nowrap;
+        padding: 10px 16px;
     }
 }

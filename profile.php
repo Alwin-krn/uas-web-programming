@@ -42,6 +42,7 @@ $error = '';
         $cityCode = $_POST['city'] ?? '';
         $districtCode = $_POST['district'] ?? '';
         $villageCode = $_POST['village'] ?? '';
+        $isActive = isset($_POST['is_active']) ? (int)$_POST['is_active'] : 1;
 
         if (strlen($fullName) < 2 || strlen($fullName) > 50) {
             $error = 'Panjang Nama Lengkap harus antara 2 hingga 50 karakter.';
@@ -115,20 +116,20 @@ $error = '';
             if ($photoPath) {
                 $stmtProfile = $pdo->prepare("
                     UPDATE user_profiles 
-                    SET address = ?, province_code = ?, city_code = ?, district_code = ?, village_code = ?, profile_photo = ?, gender = ?, birth_date = ?
+                    SET address = ?, province_code = ?, city_code = ?, district_code = ?, village_code = ?, profile_photo = ?, gender = ?, birth_date = ?, is_active = ?
                     WHERE user_id = ?
                 ");
                 $stmtProfile->execute([
-                    $address, $provinceCode, $cityCode, $districtCode, $villageCode, $photoPath, $gender, $birthDate, $_SESSION['user_id']
+                    $address, $provinceCode, $cityCode, $districtCode, $villageCode, $photoPath, $gender, $birthDate, $isActive, $_SESSION['user_id']
                 ]);
             } else {
                 $stmtProfile = $pdo->prepare("
                     UPDATE user_profiles 
-                    SET address = ?, province_code = ?, city_code = ?, district_code = ?, village_code = ?, gender = ?, birth_date = ?
+                    SET address = ?, province_code = ?, city_code = ?, district_code = ?, village_code = ?, gender = ?, birth_date = ?, is_active = ?
                     WHERE user_id = ?
                 ");
                 $stmtProfile->execute([
-                    $address, $provinceCode, $cityCode, $districtCode, $villageCode, $gender, $birthDate, $_SESSION['user_id']
+                    $address, $provinceCode, $cityCode, $districtCode, $villageCode, $gender, $birthDate, $isActive, $_SESSION['user_id']
                 ]);
             }
 
@@ -149,7 +150,7 @@ $error = '';
 // ============================================================================
 $stmt = $pdo->prepare("
     SELECT u.full_name, u.email, u.username, u.phone,
-           p.address, p.province_code, p.city_code, p.district_code, p.village_code, p.profile_photo, p.gender, p.birth_date
+           p.address, p.province_code, p.city_code, p.district_code, p.village_code, p.profile_photo, p.gender, p.birth_date, p.is_active
     FROM users u 
     LEFT JOIN user_profiles p ON u.id = p.user_id 
     WHERE u.id = ?
@@ -294,6 +295,19 @@ $avatarUrl = ($profile['profile_photo'])
                         <label for="address">Alamat <span style="color: var(--accent-rose);">*</span></label>
                         <textarea id="address" name="address" class="form-control" 
                                   placeholder="Masukkan alamat lengkap Anda" required><?php echo htmlspecialchars($profile['address'] ?? ''); ?></textarea>
+                    </div>
+
+                    <!-- Is Active? -->
+                    <div class="form-group full-width">
+                        <label>Is Active? <span style="color: var(--accent-rose);">*</span></label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="is_active" value="1" <?php echo (!isset($profile['is_active']) || $profile['is_active'] == 1) ? 'checked' : ''; ?>> True
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="is_active" value="0" <?php echo (isset($profile['is_active']) && $profile['is_active'] == 0) ? 'checked' : ''; ?>> False
+                            </label>
+                        </div>
                     </div>
                 </div>
 

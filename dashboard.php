@@ -39,6 +39,14 @@ $stmtMyProfile = $pdo->prepare("SELECT province_code, address FROM user_profiles
 $stmtMyProfile->execute([$_SESSION['user_id']]);
 $myProfile = $stmtMyProfile->fetch();
 $profileComplete = ($myProfile && $myProfile['province_code']) ? 'Lengkap' : 'Belum Lengkap';
+
+// Ambil data Recent Orders (dummy)
+$stmtOrders = $pdo->query("SELECT * FROM recent_orders ORDER BY id DESC LIMIT 5");
+$recentOrders = $stmtOrders ? $stmtOrders->fetchAll() : [];
+
+// Ambil data Todos (dummy)
+$stmtTodos = $pdo->query("SELECT * FROM todos ORDER BY id ASC LIMIT 5");
+$todos = $stmtTodos ? $stmtTodos->fetchAll() : [];
 ?>
 
     <div class="container">
@@ -105,6 +113,86 @@ $profileComplete = ($myProfile && $myProfile['province_code']) ? 'Lengkap' : 'Be
                         </a>
                         <a href="teams.php" class="btn btn-outline" style="border-radius: var(--radius-full); padding: 10px 24px;">Lihat Tim Pengembang</a>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Panels (Recent Orders & Todos) -->
+        <div class="dashboard-panels fade-in-up stagger-2">
+            <!-- Recent Orders -->
+            <div class="glass-card">
+                <div class="glass-card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: none; margin-bottom: 0;">
+                    <h2 style="font-size: 1.25rem;">Recent Orders</h2>
+                    <div style="color: var(--text-secondary); cursor: pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Date Order</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (count($recentOrders) > 0): ?>
+                                <?php foreach ($recentOrders as $order): ?>
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="width: 30px; height: 30px; border-radius: 50%; background: var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-secondary);">
+                                                    <?php echo substr($order['user_name'], 0, 2); ?>
+                                                </div>
+                                                <?php echo htmlspecialchars($order['user_name']); ?>
+                                            </div>
+                                        </td>
+                                        <td><?php echo date('d-m-Y', strtotime($order['order_date'])); ?></td>
+                                        <td>
+                                            <?php 
+                                            $badgeClass = 'badge-process';
+                                            if ($order['status'] === 'Completed') $badgeClass = 'badge-completed';
+                                            if ($order['status'] === 'Pending') $badgeClass = 'badge-pending';
+                                            if ($order['status'] === 'Canceled') $badgeClass = 'badge-canceled';
+                                            ?>
+                                            <span class="badge <?php echo $badgeClass; ?>"><?php echo htmlspecialchars($order['status']); ?></span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="3" style="text-align: center; color: var(--text-secondary);">Belum ada data pesanan (Jalankan update_fitur.php)</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Todos -->
+            <div class="glass-card">
+                <div class="glass-card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: none; margin-bottom: 0;">
+                    <h2 style="font-size: 1.25rem;">Todos</h2>
+                    <div style="color: var(--text-secondary); cursor: pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </div>
+                </div>
+                <div class="todo-list">
+                    <?php if (count($todos) > 0): ?>
+                        <?php foreach ($todos as $todo): ?>
+                            <div class="todo-item accent-<?php echo htmlspecialchars($todo['color_accent'] ?? 'blue'); ?>">
+                                <span class="todo-text"><?php echo htmlspecialchars($todo['task_name']); ?></span>
+                                <div style="color: var(--text-secondary); cursor: pointer;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="todo-item" style="border-left-color: var(--border-color);">
+                            <span class="todo-text" style="color: var(--text-secondary);">Belum ada todo (Jalankan update_fitur.php)</span>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
