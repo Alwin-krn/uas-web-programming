@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Form Registrasi -->
             <!-- Kontribusi: Alwin Dwi Kurniawan (3420240019) -->
-            <form method="POST" action="register.php" id="registerForm">
+            <form method="POST" action="register" id="registerForm">
                 <div class="form-group">
                     <label for="full_name">Nama Lengkap <span style="color: var(--accent-rose);">*</span></label>
                     <input type="text" id="full_name" name="full_name" class="form-control" 
@@ -168,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="password">Password <span style="color: var(--accent-rose);">*</span></label>
                     <div style="position: relative;">
                         <input type="password" id="password" name="password" class="form-control" 
-                               placeholder="Minimal 8 karakter" required style="padding-right: 40px;">
+                               placeholder="Minimal 8 karakter" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}" title="Password harus terdiri dari minimal 8 karakter, huruf besar, huruf kecil, angka, dan simbol" style="padding-right: 40px;">
                         <button type="button" class="toggle-password" data-target="password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center;" aria-label="Toggle Password">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </button>
@@ -179,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="confirm_password">Konfirmasi Password <span style="color: var(--accent-rose);">*</span></label>
                     <div style="position: relative;">
                         <input type="password" id="confirm_password" name="confirm_password" class="form-control" 
-                               placeholder="Ulangi password Anda" required style="padding-right: 40px;">
+                               placeholder="Ulangi password Anda" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}" title="Password harus terdiri dari minimal 8 karakter, huruf besar, huruf kecil, angka, dan simbol" style="padding-right: 40px;">
                         <button type="button" class="toggle-password" data-target="confirm_password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center;" aria-label="Toggle Password">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </button>
@@ -193,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Link ke Login -->
             <div class="auth-link">
-                Sudah punya akun? <a href="index.php" id="linkLogin">Masuk di sini</a>
+                Sudah punya akun? <a href="login" id="linkLogin">Masuk di sini</a>
             </div>
         </div>
     </div>

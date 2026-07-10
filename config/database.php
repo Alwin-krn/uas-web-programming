@@ -10,12 +10,29 @@
  * ============================================================================
  */
 
-// Konfigurasi koneksi database MySQL
+// Konfigurasi koneksi database MySQL (Environment-aware)
 // Kontribusi: Alwin Dwi Kurniawan (3420240019)
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'uas_web');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+$isLocalhost = false;
+if (isset($_SERVER['HTTP_HOST'])) {
+    if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || $_SERVER['HTTP_HOST'] === '127.0.0.1') {
+        $isLocalhost = true;
+    }
+} elseif (php_sapi_name() === 'cli') {
+    // Asumsi CLI berjalan di lokal untuk testing
+    $isLocalhost = true;
+}
+
+if ($isLocalhost) {
+    define('DB_HOST', 'localhost');
+    define('DB_NAME', 'uas_web');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+} else {
+    define('DB_HOST', 'localhost');
+    define('DB_NAME', 'portalu1_uasweb');
+    define('DB_USER', 'portalu1');
+    define('DB_PASS', 'egYCf7e945');
+}
 define('DB_CHARSET', 'utf8mb4');
 
 /**

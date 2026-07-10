@@ -18,11 +18,16 @@ session_start();
 // Jika sudah login, redirect ke dashboard
 // Kontribusi: Budi Riswandy (3420240006)
 if (isset($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
+    header('Location: dashboard');
     exit;
 }
 
 $error = '';
+
+// Cek apakah user di-logout otomatis karena timeout
+if (isset($_GET['timeout']) && $_GET['timeout'] == '1') {
+    $error = 'Sesi Anda telah berakhir karena tidak aktif selama 10 menit. Silakan login kembali.';
+}
 
 // Proses login saat form disubmit
 // Kontribusi: Budi Riswandy (3420240006)
@@ -37,6 +42,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Email dan password harus diisi.';
     } else {
         $pdo = getDBConnection();
+        $ip_address = $_SERVER['REMOTE_ADDR'];
+
+        // Hapus percobaan lama (> 15 menit)
+        $pdo->exec("DELETE FROM login_attempts WHERE attempt_time < (NOW() - INTERVAL 15 MINUTE)");
+
+        // Cek jumlah percobaan gagal
+        $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM login_attempts WHERE ip_address = ?");
+        $stmtCheck->execute([$ip_address]);
+        $attempts = $stmtCheck->fetchColumn();
+
+        if ($attempts >= 5) {
+            $error = 'Terlalu banyak percobaan login gagal. Silakan coba lagi setelah 15 menit.';
+        } else {
         
         // Cari user berdasarkan email menggunakan prepared statement (anti SQL injection)
         $stmt = $pdo->prepare("SELECT id, username, email, password, full_name FROM users WHERE email = ?");
@@ -45,7 +63,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Verifikasi password menggunakan password_verify
         if ($user && password_verify($password, $user['password'])) {
-            // Login berhasil - set session data
+            // Login berhasil - reset login attempts dan set session data
+            $stmtClear = $pdo->prepare("DELETE FROM login_attempts WHERE ip_address = ?");
+            $stmtClear->execute([$ip_address]);
+
+            // Mencegah Serangan Session Fixation
+            session_regenerate_id(true);
+
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['email'] = $user['email'];
@@ -54,7 +78,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: dashboard.php');
             exit;
         } else {
-            $error = 'Email atau password salah.';
+            // Catat percobaan gagal
+            $stmtLog = $pdo->prepare("INSERT INTO login_attempts (ip_address) VALUES (?)");
+            $stmtLog->execute([$ip_address]);
+            
+            $sisa = 5 - ($attempts + 1);
+            if ($sisa > 0) {
+                $error = 'Email atau password salah. Sisa percobaan: ' . $sisa;
+            } else {
+                $error = 'Email atau password salah. Akun Anda diblokir sementara.';
+            }
+            }
         }
     }
 }
@@ -91,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Form Login -->
             <!-- Kontribusi: Alwin Dwi Kurniawan (3420240019) -->
-            <form method="POST" action="index.php" id="loginForm">
+            <form method="POST" action="login" id="loginForm">
                 <div class="form-group">
                     <label for="email">Email <span style="color: var(--accent-rose);">*</span></label>
                     <input type="email" id="email" name="email" class="form-control" 

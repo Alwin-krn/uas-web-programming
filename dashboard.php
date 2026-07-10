@@ -40,13 +40,21 @@ $stmtMyProfile->execute([$_SESSION['user_id']]);
 $myProfile = $stmtMyProfile->fetch();
 $profileComplete = ($myProfile && $myProfile['province_code']) ? 'Lengkap' : 'Belum Lengkap';
 
-// Ambil data Recent Orders (dummy)
-$stmtOrders = $pdo->query("SELECT * FROM recent_orders ORDER BY id DESC LIMIT 5");
-$recentOrders = $stmtOrders ? $stmtOrders->fetchAll() : [];
+// Ambil data Recent Orders (aman jika tabel belum ada)
+try {
+    $stmtOrders = $pdo->query("SELECT * FROM recent_orders ORDER BY id DESC LIMIT 5");
+    $recentOrders = $stmtOrders ? $stmtOrders->fetchAll() : [];
+} catch (PDOException $e) {
+    $recentOrders = [];
+}
 
-// Ambil data Todos (dummy)
-$stmtTodos = $pdo->query("SELECT * FROM todos ORDER BY id ASC LIMIT 5");
-$todos = $stmtTodos ? $stmtTodos->fetchAll() : [];
+// Ambil data Todos (aman jika tabel belum ada)
+try {
+    $stmtTodos = $pdo->query("SELECT * FROM todos ORDER BY id ASC LIMIT 5");
+    $todos = $stmtTodos ? $stmtTodos->fetchAll() : [];
+} catch (PDOException $e) {
+    $todos = [];
+}
 ?>
 
     <div class="container">
@@ -107,13 +115,21 @@ $todos = $stmtTodos ? $stmtTodos->fetchAll() : [];
                         Aplikasi ini ibarat buku alamat super pintar! Anda bisa memilih <strong>Provinsi</strong>, lalu daftarnya otomatis mengerucut ke <strong>Kabupaten/Kota</strong>, berlanjut ke <strong>Kecamatan</strong>, hingga <strong>Kelurahan/Desa</strong>. Semua proses pencarian dari <strong>91.000+ daerah</strong> di seluruh Indonesia ini berjalan sangat cepat dan instan.
                     </p>
                     <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                        <a href="profile.php" class="btn btn-primary" style="border-radius: var(--radius-full); padding: 10px 24px;">
+                        <a href="profile" class="btn btn-primary" style="border-radius: var(--radius-full); padding: 10px 24px;">
                             <span>Melengkapi Profil</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 5px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                         </a>
-                        <a href="teams.php" class="btn btn-outline" style="border-radius: var(--radius-full); padding: 10px 24px;">Lihat Tim Pengembang</a>
+                        <a href="teams" class="btn btn-outline" style="border-radius: var(--radius-full); padding: 10px 24px;">Lihat Tim Pengembang</a>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Chart Panel -->
+        <div class="glass-card fade-in-up stagger-1" style="margin-top: 2rem;">
+            <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">Order Status Overview</h2>
+            <div style="height: 300px; width: 100%;">
+                <canvas id="orderChart"></canvas>
             </div>
         </div>
 
@@ -121,19 +137,20 @@ $todos = $stmtTodos ? $stmtTodos->fetchAll() : [];
         <div class="dashboard-panels fade-in-up stagger-2">
             <!-- Recent Orders -->
             <div class="glass-card">
-                <div class="glass-card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: none; margin-bottom: 0;">
+                <div class="glass-card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: none; margin-bottom: 1rem;">
                     <h2 style="font-size: 1.25rem;">Recent Orders</h2>
-                    <div style="color: var(--text-secondary); cursor: pointer;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <div style="display: flex; gap: 8px;" class="hide-on-print">
+                        <a href="export_orders" class="btn btn-sm btn-outline" title="Export to Excel (CSV)">CSV</a>
+                        <button onclick="window.print()" class="btn btn-sm btn-outline" title="Print to PDF">PDF</button>
                     </div>
                 </div>
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table" id="ordersTable">
                         <thead>
                             <tr>
-                                <th>User</th>
-                                <th>Date Order</th>
-                                <th>Status</th>
+                                <th style="cursor: pointer;" onclick="sortTable(0)">User ↕</th>
+                                <th style="cursor: pointer;" onclick="sortTable(1)">Date Order ↕</th>
+                                <th style="cursor: pointer;" onclick="sortTable(2)">Status ↕</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -198,4 +215,93 @@ $todos = $stmtTodos ? $stmtTodos->fetchAll() : [];
         </div>
     </div>
 
+    <!-- Scripts for Chart and Sorting -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Data from PHP for Chart
+        const ordersData = <?php echo json_encode($recentOrders); ?>;
+        const statusCounts = { 'Completed': 0, 'Pending': 0, 'Process': 0, 'Canceled': 0 };
+        ordersData.forEach(order => {
+            if(statusCounts[order.status] !== undefined) statusCounts[order.status]++;
+        });
+
+        // Initialize Chart
+        const ctx = document.getElementById('orderChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(statusCounts),
+                datasets: [{
+                    label: 'Number of Orders',
+                    data: Object.values(statusCounts),
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.6)', // Emerald
+                        'rgba(245, 158, 11, 0.6)', // Amber
+                        'rgba(6, 182, 212, 0.6)',  // Cyan
+                        'rgba(244, 63, 94, 0.6)'   // Rose
+                    ],
+                    borderColor: [
+                        'rgba(16, 185, 129, 1)',
+                        'rgba(245, 158, 11, 1)',
+                        'rgba(6, 182, 212, 1)',
+                        'rgba(244, 63, 94, 1)'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, color: '#94a3b8' },
+                        grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#94a3b8' },
+                        grid: { display: false }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Simple Table Sorting Logic
+        function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("ordersTable");
+            switching = true;
+            dir = "asc"; 
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true; break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true; break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount ++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+    </script>
 <?php require_once 'includes/footer.php'; ?>

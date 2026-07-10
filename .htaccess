@@ -1,0 +1,32 @@
+# ============================================================================
+# .htaccess - URL Rewrite Rules
+# UAS Desain dan Pemrograman Web
+#
+# Fitur:
+# - Menghilangkan ekstensi .php dari URL
+# - /login sebagai halaman utama (bukan /index)
+# - Auto-redirect /index dan /index.php ke /login
+# ============================================================================
+
+RewriteEngine On
+
+# Redirect /index.php ke /login (301 Permanent)
+RewriteCond %{THE_REQUEST} \s/index\.php[\s?] [NC]
+RewriteRule ^ /login [R=301,L]
+
+# Redirect /index ke /login (301 Permanent)
+RewriteCond %{THE_REQUEST} \s/index[\s?] [NC]
+RewriteRule ^ /login [R=301,L]
+
+# Redirect URL yang mengandung .php ke URL tanpa .php (301 Permanent)
+RewriteCond %{THE_REQUEST} \s/([^.]+)\.php[\s?] [NC]
+RewriteRule ^ /%1 [R=301,L]
+
+# Internal rewrite: /login -> index.php (tanpa redirect, URL tetap /login)
+RewriteRule ^login$ index.php [L]
+
+# Internal rewrite: URL tanpa .php -> file .php (tanpa redirect)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+)$ $1.php [L]

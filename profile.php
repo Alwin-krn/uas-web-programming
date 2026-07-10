@@ -61,6 +61,10 @@ $error = '';
             
             // 1. Cek apakah ada data base64 hasil crop
             if (!empty($_POST['cropped_photo'])) {
+                // Batasi ukuran base64 maksimal ~5MB untuk mencegah DoS
+                if (strlen($_POST['cropped_photo']) > 5 * 1024 * 1024 * 1.37) { // 1.37 is base64 overhead
+                    throw new Exception('Ukuran foto terlalu besar (maksimal 5MB).');
+                }
                 $uploadDir = __DIR__ . '/assets/images/uploads/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
@@ -86,6 +90,11 @@ $error = '';
             } 
             // 2. Fallback: Jika upload langsung tanpa crop (misal JS gagal)
             elseif (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
+                // Cek ukuran file maksimal 5MB
+                if ($_FILES['profile_photo']['size'] > 5 * 1024 * 1024) {
+                    throw new Exception('Ukuran foto terlalu besar (maksimal 5MB).');
+                }
+
                 $uploadDir = __DIR__ . '/assets/images/uploads/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
@@ -224,7 +233,7 @@ $avatarUrl = ($profile['profile_photo'])
 
         <div class="glass-card fade-in-up">
             <!-- Form Profil -->
-            <form method="POST" action="profile.php" id="profileForm" enctype="multipart/form-data">
+            <form method="POST" action="profile" id="profileForm" enctype="multipart/form-data">
                 
                 <!-- Profile Header -->
                 <!-- Kontribusi: Alwin Dwi Kurniawan (3420240019) -->
@@ -362,7 +371,7 @@ $avatarUrl = ($profile['profile_photo'])
                     <button type="submit" class="btn btn-primary" id="btnSaveProfile">
                         Simpan Profil
                     </button>
-                    <a href="dashboard.php" class="btn btn-outline" id="btnCancel">Kembali</a>
+                    <a href="dashboard" class="btn btn-outline" id="btnCancel">Kembali</a>
                 </div>
             </form>
         </div>

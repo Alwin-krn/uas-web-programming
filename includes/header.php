@@ -23,9 +23,24 @@ if (session_status() === PHP_SESSION_NONE) {
 // Cek apakah user sudah login
 // Kontribusi: Alwin Dwi Kurniawan (3420240019)
 if (!isset($_SESSION['user_id'])) {
-    header('Location: index.php');
+    header('Location: login');
     exit;
 }
+
+// ============================================================================
+// Auto-logout setelah 10 menit tidak aktif
+// ============================================================================
+$sessionTimeout = 600; // 10 menit dalam detik
+if (isset($_SESSION['last_activity'])) {
+    if (time() - $_SESSION['last_activity'] > $sessionTimeout) {
+        // Session expired, logout otomatis
+        session_unset();
+        session_destroy();
+        header('Location: login?timeout=1');
+        exit;
+    }
+}
+$_SESSION['last_activity'] = time();
 
 // Ambil data profil untuk menampilkan foto
 // Kontribusi: Budi Riswandy (3420240006)
@@ -55,7 +70,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <!-- Kontribusi: Alwin Dwi Kurniawan (3420240019) -->
     <nav class="navbar" id="mainNavbar">
         <!-- Logo UIA - Pojok Kiri Atas [15 poin] -->
-        <a href="dashboard.php" class="navbar-brand" style="text-decoration: none;">
+        <a href="dashboard" class="navbar-brand" style="text-decoration: none;">
             <img src="assets/images/logo-uia.png" alt="Logo UIA" id="logoUIA">
             <span>UIA Portal</span>
         </a>
@@ -76,25 +91,25 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
             <!-- Dropdown Items -->
             <ul class="profile-dropdown-menu" id="profileDropdownMenu">
                 <li>
-                    <a href="dashboard.php" class="<?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>" id="navDashboard">
+                    <a href="dashboard" class="<?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>" id="navDashboard">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
                         Dashboard
                     </a>
                 </li>
                 <li>
-                    <a href="profile.php" class="<?php echo $currentPage === 'profile' ? 'active' : ''; ?>" id="navProfile">
+                    <a href="profile" class="<?php echo $currentPage === 'profile' ? 'active' : ''; ?>" id="navProfile">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                         Profile
                     </a>
                 </li>
                 <li>
-                    <a href="teams.php" class="<?php echo $currentPage === 'teams' ? 'active' : ''; ?>" id="navTeams">
+                    <a href="teams" class="<?php echo $currentPage === 'teams' ? 'active' : ''; ?>" id="navTeams">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                         Teams
                     </a>
                 </li>
                 <li>
-                    <a href="logout.php" id="navLogout">
+                    <a href="logout" id="navLogout">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                         Logout
                     </a>
@@ -109,7 +124,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
         <aside class="sidebar fade-in-left">
             <ul class="sidebar-menu">
                 <li>
-                    <a href="dashboard.php" class="sidebar-link <?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>">
+                    <a href="dashboard" class="sidebar-link <?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2z"></path><polyline points="14 2 14 8 22 8"></polyline><polyline points="14 2 14 12"></polyline></svg>
                         <span>My Store</span>
                     </a>

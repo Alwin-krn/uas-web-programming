@@ -17,7 +17,7 @@
     <!-- Kontribusi: Alwin Dwi Kurniawan (3420240019) -->
     <footer class="footer" id="mainFooter">
         <p>&copy; <?php echo date('Y'); ?> UAS Desain &amp; Pemrograman Web — 
-           <a href="teams.php">Alwin Dwi Kurniawan &amp; Budi Riswandy</a> | 
+           <a href="teams">Alwin Dwi Kurniawan &amp; Budi Riswandy</a> | 
            Universitas Islam As-Syafi'iyah
         </p>
     </footer>

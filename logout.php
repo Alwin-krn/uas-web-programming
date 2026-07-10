@@ -37,5 +37,5 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Redirect ke halaman login
-header('Location: index.php');
+header('Location: login');
 exit;
